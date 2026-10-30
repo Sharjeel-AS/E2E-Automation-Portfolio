@@ -1,0 +1,98 @@
+IMPL=faulty  node v22.23.4  2026-10-30T19:55:47.726Z
+
+▶ weekly settlement [faulty implementation]
+  ✔ TC01 happy path: every qualifying task in the window is paid 10 credits and notified (3.039842ms)
+  ✔ TC02 lower boundary: Monday 00:00:00.000 UTC is included (0.45478ms)
+  ✔ TC03 upper boundary: next Monday 00:00:00.000 UTC is excluded now and paid in the next run (0.525239ms)
+  ✔ TC04 last millisecond before cut off (Sunday 23:59:59.999 UTC) is included (1.382391ms)
+  ✔ TC05 time zone: Monday 04:30 in Karachi (+05:00) is Sunday 23:30 UTC, so it counts this week (0.555362ms)
+  ✔ TC06 time zone: Sunday 19:30 in Los Angeles (-07:00) is Monday 02:30 UTC, so it counts next week (0.42357ms)
+  ✔ TC07 timestamp without an offset is rejected for review, not guessed (0.411011ms)
+  ✔ TC08 server time zone does not change the window (UTC, Asia/Karachi, America/Los_Angeles) (0.661331ms)
+  ✔ TC09 duplicate task ID in one input batch is paid once (0.491427ms)
+  ✖ TC10 running the same week again after a full success pays nothing and notifies nobody (1.382734ms)
+  ✖ TC11 SELECTED FAILURE: retry after the gateway crashes mid batch pays every task exactly once (1.11259ms)
+  ✖ TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice (0.440985ms)
+  ✖ TC13 task already paid in an earlier week is never paid again (0.247239ms)
+  ✔ TC14 partial failure: notification failure keeps the payout and leaves the notification pending (0.353741ms)
+  ✔ TC15 declined payout sends no notification and stays eligible for the next attempt (0.296832ms)
+  ✔ TC16 tasks that are not completed earn nothing (0.142107ms)
+✖ weekly settlement [faulty implementation] (13.747408ms)
+ℹ tests 16
+ℹ suites 1
+ℹ pass 12
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 96.354105
+
+✖ failing tests:
+
+test at tests/settlement.test.js:108:3
+✖ TC10 running the same week again after a full success pays nothing and notifies nobody (1.382734ms)
+  AssertionError [ERR_ASSERTION]: each task must be paid exactly once
+  
+  40 !== 20
+  
+      at TestContext.<anonymous> (file:///home/claude/e2e-automation-portfolio/must_quest/tests/settlement.test.js:112:12)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 40,
+    expected: 20,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/settlement.test.js:116:3
+✖ TC11 SELECTED FAILURE: retry after the gateway crashes mid batch pays every task exactly once (1.11259ms)
+  AssertionError [ERR_ASSERTION]: T1 must have exactly one transfer
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///home/claude/e2e-automation-portfolio/must_quest/tests/settlement.test.js:127:14)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/settlement.test.js:132:3
+✖ TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice (0.440985ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  2 !== 1
+  
+      at TestContext.<anonymous> (file:///home/claude/e2e-automation-portfolio/must_quest/tests/settlement.test.js:140:12)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 2,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/settlement.test.js:145:3
+✖ TC13 task already paid in an earlier week is never paid again (0.247239ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///home/claude/e2e-automation-portfolio/must_quest/tests/settlement.test.js:148:12)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

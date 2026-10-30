@@ -1,0 +1,77 @@
+--- src/settlement.faulty.js	2026-10-27 23:50:41.672217772 +0500
++++ src/settlement.js	2026-10-27 23:50:33.656217940 +0500
+@@ -1,20 +1,28 @@
+-// FAULTY implementation, kept on purpose to reproduce DEF 001.
++// Corrected reference implementation of the weekly rewards settlement.
+ //
+-// Defect: duplicate protection only lives for one run attempt.
+-//   1. The gateway idempotency key includes a run ID that is new on every retry.
+-//   2. The persistent ledger is written but never checked before paying.
+-// Duplicates inside one run are caught (in memory set), so the happy path and
+-// the single run duplicate test still pass. Every retry pays again.
++// Business rules (assessment rules, fictional service):
++//  R1  Runs Tuesday 09:00 UTC for [previous Monday 00:00 UTC, most recent Monday 00:00 UTC).
++//  R2  Each qualifying (status "completed") task earns 10 test credits.
++//  R3  A task ID is paid at most once, ever. Retries must never create a second payout.
++//  R4  A notification is sent only after a successful payout.
++//  R5  A notification failure never reverses a payout.
++//  A1  Assumption: timestamps without an explicit offset are rejected for manual review.
++//
++// Fix for DEF 001: duplicate protection is keyed on the task ID and backed by
++// persistent state (ledger check plus a task scoped gateway idempotency key),
++// instead of state that only lives for one run attempt.
+ 
+-import { randomUUID } from 'node:crypto';
+ import { CREDITS_PER_TASK, settlementWindow, isInWindow, hasExplicitOffset } from './window.js';
+ import { PayoutDeclined } from './fakes.js';
+ 
+-export const IMPLEMENTATION = 'faulty';
++export const IMPLEMENTATION = 'fixed';
++
++export function payoutKey(task) {
++  return `task:${task.taskId}`; // stable across every run and every retry
++}
+ 
+ export async function runSettlement({ runAt, tasks, ledger, gateway, notifier }) {
+   const window = settlementWindow(runAt);
+-  const runId = randomUUID(); // BUG: new value on every retry
+   const report = {
+     windowId: window.id,
+     paid: [],
+@@ -39,7 +47,7 @@
+     if (seenThisRun.has(task.taskId)) { report.duplicatesInInput.push(task.taskId); continue; }
+     seenThisRun.add(task.taskId);
+ 
+-    // BUG: no ledger.has(task.taskId) check here.
++    if (await ledger.has(task.taskId)) { report.alreadyPaid.push(task.taskId); continue; } // R3, across runs
+ 
+     let transfer;
+     try {
+@@ -47,14 +55,14 @@
+         userId: task.userId,
+         taskId: task.taskId,
+         amount: CREDITS_PER_TASK,
+-        idempotencyKey: `${runId}:${task.taskId}`, // BUG: run scoped, not task scoped
++        idempotencyKey: payoutKey(task), // R3, covers a lost response after commit
+       });
+     } catch (err) {
+-      if (err instanceof PayoutDeclined) { report.payoutDeclined.push(task.taskId); continue; }
+-      throw err;
++      if (err instanceof PayoutDeclined) { report.payoutDeclined.push(task.taskId); continue; } // R4: no notification
++      throw err; // gateway crash or timeout: stop the run, the job runner retries it
+     }
+ 
+-    await ledger.record(task.taskId, { // overwrites, so the ledger hides the duplicate transfer
++    await ledger.record(task.taskId, {
+       userId: task.userId,
+       amount: CREDITS_PER_TASK,
+       windowId: window.id,
+@@ -67,7 +75,7 @@
+       await notifier.send(task.userId, { taskId: task.taskId, amount: CREDITS_PER_TASK, windowId: window.id });
+       await ledger.setNotification(task.taskId, 'sent');
+     } catch {
+-      report.notificationFailed.push(task.taskId);
++      report.notificationFailed.push(task.taskId); // R5: payout stays, notification left pending for resend
+     }
+   }
+ 

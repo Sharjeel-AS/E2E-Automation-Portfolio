@@ -1,0 +1,12 @@
+{
+  "name": "settlement-regression-quest",
+  "version": "1.0.0",
+  "description": "Reproduction and regression checks for a duplicate payout on settlement retry (fictional rewards service)",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node scripts/run.mjs fixed",
+    "test:faulty": "node scripts/run.mjs faulty"
+  }
+}
