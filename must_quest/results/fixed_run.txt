@@ -1,28 +1,23 @@
-IMPL=fixed  node v22.23.4  2026-10-30T19:55:47.437Z
+Playwright project=fixed  node v22.23.4  2026-10-31T18:28:42.131Z
 
-▶ weekly settlement [fixed implementation]
-  ✔ TC01 happy path: every qualifying task in the window is paid 10 credits and notified (3.102236ms)
-  ✔ TC02 lower boundary: Monday 00:00:00.000 UTC is included (0.341883ms)
-  ✔ TC03 upper boundary: next Monday 00:00:00.000 UTC is excluded now and paid in the next run (0.434844ms)
-  ✔ TC04 last millisecond before cut off (Sunday 23:59:59.999 UTC) is included (0.364055ms)
-  ✔ TC05 time zone: Monday 04:30 in Karachi (+05:00) is Sunday 23:30 UTC, so it counts this week (0.50183ms)
-  ✔ TC06 time zone: Sunday 19:30 in Los Angeles (-07:00) is Monday 02:30 UTC, so it counts next week (0.432164ms)
-  ✔ TC07 timestamp without an offset is rejected for review, not guessed (0.251446ms)
-  ✔ TC08 server time zone does not change the window (UTC, Asia/Karachi, America/Los_Angeles) (2.290959ms)
-  ✔ TC09 duplicate task ID in one input batch is paid once (0.423702ms)
-  ✔ TC10 running the same week again after a full success pays nothing and notifies nobody (0.467828ms)
-  ✔ TC11 SELECTED FAILURE: retry after the gateway crashes mid batch pays every task exactly once (0.855125ms)
-  ✔ TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice (0.301708ms)
-  ✔ TC13 task already paid in an earlier week is never paid again (0.235247ms)
-  ✔ TC14 partial failure: notification failure keeps the payout and leaves the notification pending (0.217899ms)
-  ✔ TC15 declined payout sends no notification and stays eligible for the next attempt (0.304629ms)
-  ✔ TC16 tasks that are not completed earn nothing (0.13764ms)
-✔ weekly settlement [fixed implementation] (11.998376ms)
-ℹ tests 16
-ℹ suites 1
-ℹ pass 16
-ℹ fail 0
-ℹ cancelled 0
-ℹ skipped 0
-ℹ todo 0
-ℹ duration_ms 93.985033
+
+Running 16 tests using 1 worker
+
+  ✓   1 [fixed] › tests/settlement.spec.js:20:3 › weekly settlement › TC01 happy path: every qualifying task in the window is paid 10 credits and notified (241ms)
+  ✓   2 [fixed] › tests/settlement.spec.js:34:3 › weekly settlement › TC02 lower boundary: Monday 00:00:00.000 UTC is included (3ms)
+  ✓   3 [fixed] › tests/settlement.spec.js:39:3 › weekly settlement › TC03 upper boundary: next Monday 00:00:00.000 UTC is excluded now and paid in the next run (9ms)
+  ✓   4 [fixed] › tests/settlement.spec.js:50:3 › weekly settlement › TC04 last millisecond before cut off (Sunday 23:59:59.999 UTC) is included (2ms)
+  ✓   5 [fixed] › tests/settlement.spec.js:55:3 › weekly settlement › TC05 time zone: Monday 04:30 in Karachi (+05:00) is Sunday 23:30 UTC, so it counts this week (1ms)
+  ✓   6 [fixed] › tests/settlement.spec.js:60:3 › weekly settlement › TC06 time zone: Sunday 19:30 in Los Angeles (-07:00) is Monday 02:30 UTC, so it counts next week (2ms)
+  ✓   7 [fixed] › tests/settlement.spec.js:68:3 › weekly settlement › TC07 timestamp without an offset is rejected for review, not guessed (2ms)
+  ✓   8 [fixed] › tests/settlement.spec.js:75:3 › weekly settlement › TC08 server time zone does not change the window (UTC, Asia/Karachi, America/Los_Angeles) (2ms)
+  ✓   9 [fixed] › tests/settlement.spec.js:89:3 › weekly settlement › TC09 duplicate task ID in one input batch is paid once (3ms)
+  ✓  10 [fixed] › tests/settlement.spec.js:96:3 › weekly settlement › TC10 running the same week again after a full success pays nothing and notifies nobody (1ms)
+  ✓  11 [fixed] › tests/settlement.spec.js:104:3 › weekly settlement › TC11 SELECTED FAILURE: retry after the gateway crashes mid batch pays every task exactly once (9ms)
+  ✓  12 [fixed] › tests/settlement.spec.js:120:3 › weekly settlement › TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice (2ms)
+  ✓  13 [fixed] › tests/settlement.spec.js:133:3 › weekly settlement › TC13 task already paid in an earlier week is never paid again (2ms)
+  ✓  14 [fixed] › tests/settlement.spec.js:140:3 › weekly settlement › TC14 partial failure: notification failure keeps the payout and leaves the notification pending (2ms)
+  ✓  15 [fixed] › tests/settlement.spec.js:152:3 › weekly settlement › TC15 declined payout sends no notification and stays eligible for the next attempt (3ms)
+  ✓  16 [fixed] › tests/settlement.spec.js:163:3 › weekly settlement › TC16 tasks that are not completed earn nothing (1ms)
+
+  16 passed (1.1s)

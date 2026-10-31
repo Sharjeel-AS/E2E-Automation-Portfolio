@@ -15,7 +15,7 @@ Duplicate payout protection only exists for one run attempt. When the settlement
 
 ## Steps to reproduce
 
-1. Install Node 20 or later, then run `npm run test:faulty`.
+1. Install Node 20 or later, run `npm install`, then run `npm run test:faulty`.
 2. Or by hand: build five completed tasks inside window `2026-10-19`, then configure the fake gateway to crash on call 3.
 3. Run settlement for `2026-10-27T09:00:00Z`. The run stops after paying T1 and T2.
 4. Recover the gateway and run settlement again for the same `runAt`, which is the job retry.
@@ -34,7 +34,7 @@ Duplicate payout protection only exists for one run attempt. When the settlement
 
 * **TC11 failure:** `T1 must have exactly one transfer`, 2 !== 1 (see `results/faulty_run.txt`).
 * **TC10 failure:** `each task must be paid exactly once`, 40 !== 20.
-* **TC12 failure:** after a lost gateway response, T2 has 2 transfers.
+* **TC12 failure:** after a lost gateway response and a retry, T1 and T2 each have 2 transfers.
 * **TC13 failure:** a task paid in week `2026-10-12` is paid again.
 * The same 16 tests pass on the fixed build (`results/fixed_run.txt`).
 

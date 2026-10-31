@@ -41,7 +41,7 @@ Results come from `results/faulty_run.txt` and `results/fixed_run.txt`.
 | TC09 | Duplicate input | T1 listed twice in one batch | One transfer | Pass | Pass |
 | TC10 | Retry after success | Same week run twice | 20 credits total, 2 notifications | **Fail** (40 credits) | Pass |
 | TC11 | Retry after partial failure (selected) | 5 tasks, gateway crashes on call 3, job retried | Each task exactly one transfer, 50 total | **Fail** (T1, T2 paid twice) | Pass |
-| TC12 | Retry after a lost response (selected) | T2 transfer commits, response lost, job retried | One transfer per task, 20 total | **Fail** (T2 paid twice) | Pass |
+| TC12 | Retry after a lost response (selected) | T2 transfer commits, response lost, job retried | One transfer per task, 20 total | **Fail** (T1 and T2 paid twice) | Pass |
 | TC13 | Already paid earlier | T1 in ledger from week `2026-10-12` | No transfer, reported as already paid | **Fail** (paid again) | Pass |
 | TC14 | Partial failure, notification | Push fails for bilal | Payout stays, no reversal, status `pending` | Pass | Pass |
 | TC15 | Payout declined | Gateway declines chen | No notification, no ledger entry, still eligible | Pass | Pass |

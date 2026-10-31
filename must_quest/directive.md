@@ -24,7 +24,7 @@ All data in this project is synthetic. User names such as alice and bilal are fi
 
 ## 3. Requirements
 
-1. A local fixture with no dependencies: Node 20 or later, no network calls, nothing to install.
+1. A local fixture: Node 20 or later, no network calls during tests, and one test dependency (Playwright Test).
 2. At least eight test cases with inputs and expected outcomes, covering:
    * the happy path
    * a cut off boundary
@@ -72,18 +72,19 @@ All data in this project is synthetic. User names such as alice and bilal are fi
 | Failing run (faulty build) | [results/faulty_run.txt](results/faulty_run.txt) |
 | Passing run (fixed build) | [results/fixed_run.txt](results/fixed_run.txt) |
 | Code change | [results/fix.diff](results/fix.diff) |
-| Test suite | [tests/settlement.test.js](tests/settlement.test.js) |
+| Test suite (Playwright Test) | [tests/settlement.spec.js](tests/settlement.spec.js) |
 
 ### B. How to reproduce
 
 ```
 git clone https://github.com/Sharjeel-AS/E2E-Automation-Portfolio.git
 cd E2E-Automation-Portfolio/must_quest
+npm install
 npm test              # fixed implementation
 npm run test:faulty   # faulty implementation, reproduces DEF 001
 ```
 
-You need Node 20 or later. There is nothing to install.
+You need Node 20 or later. Run `npm install` once before the tests. To watch the tests run, use `npm run test:ui`.
 
 ### C. Checks and actual results
 
@@ -96,7 +97,7 @@ The failure messages match the defect:
 
 * TC10: 40 credits paid instead of 20.
 * TC11: T1 has 2 transfers instead of 1.
-* TC12: T2 has 2 transfers instead of 1.
+* TC12: after the lost response, the retry paid T1 and T2 again (2 transfers each instead of 1).
 * TC13: a task from an earlier week was paid again.
 
 These results come from running both commands locally on [Aisha: date, macOS, Node version].
@@ -120,10 +121,15 @@ These results come from running both commands locally on [Aisha: date, macOS, No
 
 **AI output that was corrected:**
 
-* The first version of the test runner pointed Node at a folder (`tests/`) and failed to start. It was corrected to point at the test file, then both modes were rerun.
+* In the first version (Node's built in test runner), the runner script pointed Node at a folder (`tests/`) and failed to start. It was corrected to point at the test file, then both modes were rerun.
+* The first defect notes said TC12 paid only T2 twice. The Playwright run showed that the retry pays T1 and T2 twice, so the documents were corrected.
 * A [Aisha: add anything you changed or rejected. For example, a test you rewrote, a severity you changed, or wording you corrected.]
 
-**What I decided and verified myself.** [Aisha: write this honestly in your own words. For example:]
+**What I decided and verified myself.**
+
+* I asked for the suite to be moved from Node's built in test runner to Playwright Test, so it matches the automation stack I use and the runs can be watched in UI mode.
+
+[Aisha: add the rest honestly in your own words. For example:]
 
 * the choice of failure and its ranking
 * the assumption that timestamps without an offset are rejected

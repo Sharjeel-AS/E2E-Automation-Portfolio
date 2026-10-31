@@ -36,5 +36,5 @@ A change to settlement, payout, ledger or notification code is ready only when e
 
 * **Run:** `npm test` (fixed) and `npm run test:faulty` (reproduces DEF 001). Both write output to `results/`.
 * **Where the logic lives:** window rules in `src/window.js`, settlement in `src/settlement.js`, test doubles in `src/fakes.js`.
-* **Adding a case:** add a `test(...)` block in `tests/settlement.test.js`. Assert on `gateway.transfers`, not only the run report.
+* **Adding a case:** add a `test(...)` block in `tests/settlement.spec.js`. Assert on `gateway.transfers`, not only the run report.
 * **Owner for G1 and G2:** backend engineer with QA review. Tests should come before the fix.
