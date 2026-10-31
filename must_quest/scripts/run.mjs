@@ -1,6 +1,3 @@
-// Runner: node scripts/run.mjs fixed|faulty
-// Runs the Playwright suite for one implementation (project) and saves the console output in results/.
-// The HTML report is written to results/html_report (open it with: npm run report).
 import { spawnSync } from 'node:child_process';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';

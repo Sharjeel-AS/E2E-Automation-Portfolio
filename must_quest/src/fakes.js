@@ -1,5 +1,3 @@
-// Test doubles. No live financial system is used anywhere in this project.
-
 export class PayoutDeclined extends Error {
   constructor(message) { super(message); this.name = 'PayoutDeclined'; }
 }
@@ -10,7 +8,6 @@ export class GatewayTimeout extends Error {
   constructor(message) { super(message); this.name = 'GatewayTimeout'; }
 }
 
-// Persistent ledger of paid tasks. It survives between runs, like a database table.
 export class FakeLedger {
   constructor(initial = []) {
     this.entries = new Map(initial.map((e) => [e.taskId, { ...e }]));
@@ -24,8 +21,6 @@ export class FakeLedger {
   get(taskId) { return this.entries.get(taskId); }
 }
 
-// Payout gateway that honours idempotency keys, like most real payout APIs.
-// `transfers` is the source of truth for money that actually moved.
 export class FakePayoutGateway {
   constructor({ crashOnCall, timeoutAfterCommitOnCall, declineUsers = [] } = {}) {
     this.calls = 0;
@@ -37,7 +32,6 @@ export class FakePayoutGateway {
     this.declineUsers = new Set(declineUsers);
   }
 
-  // Clears the one time failure modes, like a gateway that recovered before the retry.
   recover() { this.crashOnCall = undefined; this.timeoutAfterCommitOnCall = undefined; }
 
   async pay({ userId, taskId, amount, idempotencyKey }) {
@@ -45,14 +39,14 @@ export class FakePayoutGateway {
     if (this.crashOnCall === this.calls) throw new GatewayCrash(`Gateway unavailable on call ${this.calls}`);
     if (this.declineUsers.has(userId)) throw new PayoutDeclined(`Payout declined for ${userId}`);
 
-    if (this.byKey.has(idempotencyKey)) return this.byKey.get(idempotencyKey); // replay, no new money moves
+    if (this.byKey.has(idempotencyKey)) return this.byKey.get(idempotencyKey);
 
     const transfer = { transferId: `tr_${this.transfers.length + 1}`, userId, taskId, amount, idempotencyKey };
     this.transfers.push(transfer);
     this.byKey.set(idempotencyKey, transfer);
 
     if (this.timeoutAfterCommitOnCall === this.calls) {
-      throw new GatewayTimeout(`Response lost after commit on call ${this.calls}`); // money moved, caller never heard back
+      throw new GatewayTimeout(`Response lost after commit on call ${this.calls}`);
     }
     return transfer;
   }

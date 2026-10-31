@@ -1,27 +1,27 @@
-Playwright project=faulty  node v22.23.4  2026-10-31T18:28:46.701Z
+Playwright project=faulty  node v22.23.4  2026-10-31T18:51:29.515Z
 
 
 Running 16 tests using 1 worker
 
-  ✓   1 [faulty] › tests/settlement.spec.js:20:3 › weekly settlement › TC01 happy path: every qualifying task in the window is paid 10 credits and notified (163ms)
-  ✓   2 [faulty] › tests/settlement.spec.js:34:3 › weekly settlement › TC02 lower boundary: Monday 00:00:00.000 UTC is included (3ms)
-  ✓   3 [faulty] › tests/settlement.spec.js:39:3 › weekly settlement › TC03 upper boundary: next Monday 00:00:00.000 UTC is excluded now and paid in the next run (4ms)
-  ✓   4 [faulty] › tests/settlement.spec.js:50:3 › weekly settlement › TC04 last millisecond before cut off (Sunday 23:59:59.999 UTC) is included (2ms)
-  ✓   5 [faulty] › tests/settlement.spec.js:55:3 › weekly settlement › TC05 time zone: Monday 04:30 in Karachi (+05:00) is Sunday 23:30 UTC, so it counts this week (2ms)
-  ✓   6 [faulty] › tests/settlement.spec.js:60:3 › weekly settlement › TC06 time zone: Sunday 19:30 in Los Angeles (-07:00) is Monday 02:30 UTC, so it counts next week (2ms)
-  ✓   7 [faulty] › tests/settlement.spec.js:68:3 › weekly settlement › TC07 timestamp without an offset is rejected for review, not guessed (7ms)
-  ✓   8 [faulty] › tests/settlement.spec.js:75:3 › weekly settlement › TC08 server time zone does not change the window (UTC, Asia/Karachi, America/Los_Angeles) (3ms)
-  ✓   9 [faulty] › tests/settlement.spec.js:89:3 › weekly settlement › TC09 duplicate task ID in one input batch is paid once (2ms)
-  ✘  10 [faulty] › tests/settlement.spec.js:96:3 › weekly settlement › TC10 running the same week again after a full success pays nothing and notifies nobody (3ms)
-  ✘  11 [faulty] › tests/settlement.spec.js:104:3 › weekly settlement › TC11 SELECTED FAILURE: retry after the gateway crashes mid batch pays every task exactly once (184ms)
-  ✘  12 [faulty] › tests/settlement.spec.js:120:3 › weekly settlement › TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice (210ms)
-  ✘  13 [faulty] › tests/settlement.spec.js:133:3 › weekly settlement › TC13 task already paid in an earlier week is never paid again (163ms)
-  ✓  14 [faulty] › tests/settlement.spec.js:140:3 › weekly settlement › TC14 partial failure: notification failure keeps the payout and leaves the notification pending (159ms)
-  ✓  15 [faulty] › tests/settlement.spec.js:152:3 › weekly settlement › TC15 declined payout sends no notification and stays eligible for the next attempt (4ms)
-  ✓  16 [faulty] › tests/settlement.spec.js:163:3 › weekly settlement › TC16 tasks that are not completed earn nothing (7ms)
+  ✓   1 [faulty] › tests/settlement.spec.js:11:3 › weekly settlement › TC01 happy path: every qualifying task in the window is paid 10 credits and notified (213ms)
+  ✓   2 [faulty] › tests/settlement.spec.js:25:3 › weekly settlement › TC02 lower boundary: Monday 00:00:00.000 UTC is included (8ms)
+  ✓   3 [faulty] › tests/settlement.spec.js:30:3 › weekly settlement › TC03 upper boundary: next Monday 00:00:00.000 UTC is excluded now and paid in the next run (14ms)
+  ✓   4 [faulty] › tests/settlement.spec.js:41:3 › weekly settlement › TC04 last millisecond before cut off (Sunday 23:59:59.999 UTC) is included (4ms)
+  ✓   5 [faulty] › tests/settlement.spec.js:46:3 › weekly settlement › TC05 time zone: Monday 04:30 in Karachi (+05:00) is Sunday 23:30 UTC, so it counts this week (3ms)
+  ✓   6 [faulty] › tests/settlement.spec.js:51:3 › weekly settlement › TC06 time zone: Sunday 19:30 in Los Angeles (-07:00) is Monday 02:30 UTC, so it counts next week (4ms)
+  ✓   7 [faulty] › tests/settlement.spec.js:59:3 › weekly settlement › TC07 timestamp without an offset is rejected for review, not guessed (4ms)
+  ✓   8 [faulty] › tests/settlement.spec.js:66:3 › weekly settlement › TC08 server time zone does not change the window (UTC, Asia/Karachi, America/Los_Angeles) (4ms)
+  ✓   9 [faulty] › tests/settlement.spec.js:80:3 › weekly settlement › TC09 duplicate task ID in one input batch is paid once (3ms)
+  ✘  10 [faulty] › tests/settlement.spec.js:87:3 › weekly settlement › TC10 running the same week again after a full success pays nothing and notifies nobody (8ms)
+  ✘  11 [faulty] › tests/settlement.spec.js:95:3 › weekly settlement › TC11 SELECTED FAILURE: retry after the gateway crashes mid batch pays every task exactly once (178ms)
+  ✘  12 [faulty] › tests/settlement.spec.js:111:3 › weekly settlement › TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice (235ms)
+  ✘  13 [faulty] › tests/settlement.spec.js:124:3 › weekly settlement › TC13 task already paid in an earlier week is never paid again (247ms)
+  ✓  14 [faulty] › tests/settlement.spec.js:131:3 › weekly settlement › TC14 partial failure: notification failure keeps the payout and leaves the notification pending (193ms)
+  ✓  15 [faulty] › tests/settlement.spec.js:143:3 › weekly settlement › TC15 declined payout sends no notification and stays eligible for the next attempt (6ms)
+  ✓  16 [faulty] › tests/settlement.spec.js:154:3 › weekly settlement › TC16 tasks that are not completed earn nothing (4ms)
 
 
-  1) [faulty] › tests/settlement.spec.js:96:3 › weekly settlement › TC10 running the same week again after a full success pays nothing and notifies nobody 
+  1) [faulty] › tests/settlement.spec.js:87:3 › weekly settlement › TC10 running the same week again after a full success pays nothing and notifies nobody 
 
     Error: each task must be paid exactly once
 
@@ -30,18 +30,18 @@ Running 16 tests using 1 worker
     Expected: 20
     Received: 40
 
-       98 |     await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() });
-       99 |     await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() }); // operator reruns the job
-    > 100 |     expect(world.gateway.total(), 'each task must be paid exactly once').toBe(20);
-          |                                                                          ^
-      101 |     expect(world.notifier.sent, 'users must not be told they were paid twice').toHaveLength(2);
-      102 |   });
-      103 |
-        at /home/claude/must_quest/tests/settlement.spec.js:100:74
+      89 |     await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() });
+      90 |     await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() });
+    > 91 |     expect(world.gateway.total(), 'each task must be paid exactly once').toBe(20);
+         |                                                                          ^
+      92 |     expect(world.notifier.sent, 'users must not be told they were paid twice').toHaveLength(2);
+      93 |   });
+      94 |
+        at /home/claude/must_quest/tests/settlement.spec.js:91:74
 
     Error Context: test-results/settlement-weekly-settleme-d28c6-nothing-and-notifies-nobody-faulty/error-context.md
 
-  2) [faulty] › tests/settlement.spec.js:104:3 › weekly settlement › TC11 SELECTED FAILURE: retry after the gateway crashes mid batch pays every task exactly once 
+  2) [faulty] › tests/settlement.spec.js:95:3 › weekly settlement › TC11 SELECTED FAILURE: retry after the gateway crashes mid batch pays every task exactly once 
 
     Error: T1 must have exactly one transfer
 
@@ -49,39 +49,39 @@ Running 16 tests using 1 worker
 
     Expected length: 1
     Received length: 2
-    Received array:  [{"amount": 10, "idempotencyKey": "cf9d49b7-da20-4330-bc99-98a8acec7fff:T1", "taskId": "T1", "transferId": "tr_1", "userId": "user1"}, {"amount": 10, "idempotencyKey": "66c65375-7500-4a97-9df8-612ac9ad71f9:T1", "taskId": "T1", "transferId": "tr_3", "userId": "user1"}]
+    Received array:  [{"amount": 10, "idempotencyKey": "43be3989-98ca-4b15-81dd-4819b1277eaf:T1", "taskId": "T1", "transferId": "tr_1", "userId": "user1"}, {"amount": 10, "idempotencyKey": "0f6bfc76-0747-4ddf-add8-88bd4b148655:T1", "taskId": "T1", "transferId": "tr_3", "userId": "user1"}]
 
-      113 |
-      114 |     for (const id of ['T1', 'T2', 'T3', 'T4', 'T5']) {
-    > 115 |       expect(world.gateway.transfersForTask(id), `${id} must have exactly one transfer`).toHaveLength(1);
+      104 |
+      105 |     for (const id of ['T1', 'T2', 'T3', 'T4', 'T5']) {
+    > 106 |       expect(world.gateway.transfersForTask(id), `${id} must have exactly one transfer`).toHaveLength(1);
           |                                                                                          ^
-      116 |     }
-      117 |     expect(world.gateway.total()).toBe(50);
-      118 |   });
-        at /home/claude/must_quest/tests/settlement.spec.js:115:90
+      107 |     }
+      108 |     expect(world.gateway.total()).toBe(50);
+      109 |   });
+        at /home/claude/must_quest/tests/settlement.spec.js:106:90
 
     Error Context: test-results/settlement-weekly-settleme-e22d3-ays-every-task-exactly-once-faulty/error-context.md
 
-  3) [faulty] › tests/settlement.spec.js:120:3 › weekly settlement › TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice 
+  3) [faulty] › tests/settlement.spec.js:111:3 › weekly settlement › TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice 
 
     Error: expect(received).toHaveLength(expected)
 
     Expected length: 1
     Received length: 2
-    Received array:  [{"amount": 10, "idempotencyKey": "f590b1b7-5287-43ed-81e1-4815d97c608f:T1", "taskId": "T1", "transferId": "tr_1", "userId": "alice"}, {"amount": 10, "idempotencyKey": "9d61d714-d2b5-45b2-abca-646a161473fc:T1", "taskId": "T1", "transferId": "tr_3", "userId": "alice"}]
+    Received array:  [{"amount": 10, "idempotencyKey": "85c8fba0-3198-4da3-a8ac-78f266d8bfde:T1", "taskId": "T1", "transferId": "tr_1", "userId": "alice"}, {"amount": 10, "idempotencyKey": "763b61c4-ab6f-42ed-bbb3-f8e61da4bf6c:T1", "taskId": "T1", "transferId": "tr_3", "userId": "alice"}]
 
-      126 |     await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() });
-      127 |
-    > 128 |     expect(world.gateway.transfersForTask('T1')).toHaveLength(1);
+      117 |     await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() });
+      118 |
+    > 119 |     expect(world.gateway.transfersForTask('T1')).toHaveLength(1);
           |                                                  ^
-      129 |     expect(world.gateway.transfersForTask('T2'), 'T2 must have exactly one transfer').toHaveLength(1);
-      130 |     expect(world.gateway.total()).toBe(20);
-      131 |   });
-        at /home/claude/must_quest/tests/settlement.spec.js:128:50
+      120 |     expect(world.gateway.transfersForTask('T2'), 'T2 must have exactly one transfer').toHaveLength(1);
+      121 |     expect(world.gateway.total()).toBe(20);
+      122 |   });
+        at /home/claude/must_quest/tests/settlement.spec.js:119:50
 
     Error Context: test-results/settlement-weekly-settleme-5716d-e-does-not-move-money-twice-faulty/error-context.md
 
-  4) [faulty] › tests/settlement.spec.js:133:3 › weekly settlement › TC13 task already paid in an earlier week is never paid again 
+  4) [faulty] › tests/settlement.spec.js:124:3 › weekly settlement › TC13 task already paid in an earlier week is never paid again 
 
     Error: a task paid last week must not be paid again
 
@@ -89,22 +89,22 @@ Running 16 tests using 1 worker
 
     Expected length: 0
     Received length: 1
-    Received array:  [{"amount": 10, "idempotencyKey": "29335c17-1302-4ce8-b706-a170c4de9a01:T1", "taskId": "T1", "transferId": "tr_1", "userId": "alice"}]
+    Received array:  [{"amount": 10, "idempotencyKey": "0542f1b3-811c-45c7-950d-011bb9c80867:T1", "taskId": "T1", "transferId": "tr_1", "userId": "alice"}]
 
-      134 |     world.ledger = new FakeLedger([{ taskId: 'T1', userId: 'alice', amount: 10, windowId: '2026-10-12', transferId: 'tr_old' }]);
-      135 |     const report = await runSettlement({ runAt: RUN_AT, tasks: [task('T1', 'alice', '2026-10-20T10:00:00Z')], ...world.deps() });
-    > 136 |     expect(world.gateway.transfers, 'a task paid last week must not be paid again').toHaveLength(0);
+      125 |     world.ledger = new FakeLedger([{ taskId: 'T1', userId: 'alice', amount: 10, windowId: '2026-10-12', transferId: 'tr_old' }]);
+      126 |     const report = await runSettlement({ runAt: RUN_AT, tasks: [task('T1', 'alice', '2026-10-20T10:00:00Z')], ...world.deps() });
+    > 127 |     expect(world.gateway.transfers, 'a task paid last week must not be paid again').toHaveLength(0);
           |                                                                                     ^
-      137 |     expect(report.alreadyPaid).toEqual(['T1']);
-      138 |   });
-      139 |
-        at /home/claude/must_quest/tests/settlement.spec.js:136:85
+      128 |     expect(report.alreadyPaid).toEqual(['T1']);
+      129 |   });
+      130 |
+        at /home/claude/must_quest/tests/settlement.spec.js:127:85
 
     Error Context: test-results/settlement-weekly-settleme-44574-er-week-is-never-paid-again-faulty/error-context.md
 
   4 failed
-    [faulty] › tests/settlement.spec.js:96:3 › weekly settlement › TC10 running the same week again after a full success pays nothing and notifies nobody 
-    [faulty] › tests/settlement.spec.js:104:3 › weekly settlement › TC11 SELECTED FAILURE: retry after the gateway crashes mid batch pays every task exactly once 
-    [faulty] › tests/settlement.spec.js:120:3 › weekly settlement › TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice 
-    [faulty] › tests/settlement.spec.js:133:3 › weekly settlement › TC13 task already paid in an earlier week is never paid again 
-  12 passed (3.8s)
+    [faulty] › tests/settlement.spec.js:87:3 › weekly settlement › TC10 running the same week again after a full success pays nothing and notifies nobody 
+    [faulty] › tests/settlement.spec.js:95:3 › weekly settlement › TC11 SELECTED FAILURE: retry after the gateway crashes mid batch pays every task exactly once 
+    [faulty] › tests/settlement.spec.js:111:3 › weekly settlement › TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice 
+    [faulty] › tests/settlement.spec.js:124:3 › weekly settlement › TC13 task already paid in an earlier week is never paid again 
+  12 passed (4.5s)

@@ -1,16 +1,7 @@
-// Regression suite for the weekly rewards settlement (Playwright Test).
-//   npm test             -> project "fixed":  all 16 pass
-//   npm run test:faulty  -> project "faulty": TC10 to TC13 fail (DEF 001)
-//   npm run test:ui      -> watch both projects run in Playwright UI mode
-//
-// Assertions check gateway transfers (money that actually moved), not only the run report,
-// because the faulty ledger overwrites entries and would hide a duplicate payout.
-
 import { test, expect } from './fixtures.js';
 import { FakeLedger, FakePayoutGateway, FakeNotifier, GatewayCrash, GatewayTimeout } from '../src/fakes.js';
 import { settlementWindow } from '../src/window.js';
 
-// Run on Tuesday 27 Oct 2026 09:00 UTC settles [Mon 19 Oct 00:00 UTC, Mon 26 Oct 00:00 UTC)
 const RUN_AT = '2026-10-27T09:00:00Z';
 const NEXT_RUN_AT = '2026-11-03T09:00:00Z';
 
@@ -96,7 +87,7 @@ test.describe('weekly settlement', () => {
   test('TC10 running the same week again after a full success pays nothing and notifies nobody', async ({ runSettlement, world }) => {
     const tasks = [task('T1', 'alice', '2026-10-20T10:00:00Z'), task('T2', 'bilal', '2026-10-21T10:00:00Z')];
     await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() });
-    await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() }); // operator reruns the job
+    await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() });
     expect(world.gateway.total(), 'each task must be paid exactly once').toBe(20);
     expect(world.notifier.sent, 'users must not be told they were paid twice').toHaveLength(2);
   });
@@ -109,7 +100,7 @@ test.describe('weekly settlement', () => {
     expect(world.gateway.transfers, 'T1 and T2 were paid before the crash').toHaveLength(2);
 
     world.gateway.recover();
-    await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() }); // job runner retries
+    await runSettlement({ runAt: RUN_AT, tasks, ...world.deps() });
 
     for (const id of ['T1', 'T2', 'T3', 'T4', 'T5']) {
       expect(world.gateway.transfersForTask(id), `${id} must have exactly one transfer`).toHaveLength(1);
@@ -119,7 +110,7 @@ test.describe('weekly settlement', () => {
 
   test('TC12 SELECTED FAILURE: retry after a lost gateway response does not move money twice', async ({ runSettlement, world }) => {
     const tasks = [task('T1', 'alice', '2026-10-20T10:00:00Z'), task('T2', 'bilal', '2026-10-21T10:00:00Z')];
-    world.gateway = new FakePayoutGateway({ timeoutAfterCommitOnCall: 2 }); // T2 transfer commits, response is lost
+    world.gateway = new FakePayoutGateway({ timeoutAfterCommitOnCall: 2 });
 
     await expect(runSettlement({ runAt: RUN_AT, tasks, ...world.deps() })).rejects.toThrow(GatewayTimeout);
     world.gateway.recover();
