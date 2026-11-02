@@ -1,30 +1,26 @@
+// credits per completed task
 export const CREDITS_PER_TASK = 10;
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-const ISO_WITH_OFFSET = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})$/;
-
-export function hasExplicitOffset(value) {
-  return typeof value === 'string' && ISO_WITH_OFFSET.test(value) && !Number.isNaN(Date.parse(value));
+// check timestamp has a timezone (Z or +05:00)
+export function hasTimezone(timestamp) {
+  return timestamp.endsWith('Z') || /[+-]\d\d:\d\d$/.test(timestamp);
 }
 
-export function settlementWindow(runAt) {
-  const run = new Date(runAt);
-  if (Number.isNaN(run.getTime())) throw new Error(`Invalid runAt: ${runAt}`);
+// get the week to pay for: last monday 00:00 utc to this monday 00:00 utc
+export function getSettlementWindow(runAt) {
+  const end = new Date(runAt);
+  end.setUTCHours(0, 0, 0, 0);
+  const daysSinceMonday = (end.getUTCDay() + 6) % 7;
+  end.setUTCDate(end.getUTCDate() - daysSinceMonday);
 
-  const daysSinceMonday = (run.getUTCDay() + 6) % 7;
-  const startOfRunDay = Date.UTC(run.getUTCFullYear(), run.getUTCMonth(), run.getUTCDate());
-  const end = startOfRunDay - daysSinceMonday * DAY_MS;
-  const start = end - 7 * DAY_MS;
+  const start = new Date(end);
+  start.setUTCDate(start.getUTCDate() - 7);
 
-  return {
-    id: new Date(start).toISOString().slice(0, 10),
-    start: new Date(start),
-    end: new Date(end),
-  };
+  return { id: start.toISOString().slice(0, 10), start, end };
 }
 
+// is the task inside that week
 export function isInWindow(completedAt, window) {
-  const t = Date.parse(completedAt);
-  return t >= window.start.getTime() && t < window.end.getTime();
+  const time = new Date(completedAt);
+  return time >= window.start && time < window.end;
 }

@@ -1,69 +1,47 @@
-import { CREDITS_PER_TASK, settlementWindow, isInWindow, hasExplicitOffset } from './window.js';
+import { CREDITS_PER_TASK, getSettlementWindow, isInWindow, hasTimezone } from './window.js';
 import { PayoutDeclined } from './fakes.js';
 
-export const IMPLEMENTATION = 'fixed';
-
-export function payoutKey(task) {
-  return `task:${task.taskId}`;
-}
-
-export async function runSettlement({ runAt, tasks, ledger, gateway, notifier }) {
-  const window = settlementWindow(runAt);
-  const report = {
-    windowId: window.id,
-    paid: [],
-    alreadyPaid: [],
-    duplicatesInInput: [],
-    outOfWindow: [],
-    notQualifying: [],
-    rejected: [],
-    payoutDeclined: [],
-    notificationFailed: [],
-  };
-  const seenThisRun = new Set();
+// weekly settlement - fixed version
+export function runSettlement({ runAt, tasks, ledger, gateway, notifier }) {
+  const window = getSettlementWindow(runAt);
+  const paid = [];
+  const notifyFailed = [];
+  const seen = [];
 
   for (const task of tasks) {
-    if (!task?.taskId || !task?.userId || !hasExplicitOffset(task.completedAt)) {
-      report.rejected.push(task?.taskId ?? null);
-      continue;
-    }
-    if (task.status !== 'completed') { report.notQualifying.push(task.taskId); continue; }
-    if (!isInWindow(task.completedAt, window)) { report.outOfWindow.push(task.taskId); continue; }
+    // skip invalid tasks
+    if (task.status !== 'completed') continue;
+    if (!hasTimezone(task.completedAt)) continue;
+    if (!isInWindow(task.completedAt, window)) continue;
 
-    if (seenThisRun.has(task.taskId)) { report.duplicatesInInput.push(task.taskId); continue; }
-    seenThisRun.add(task.taskId);
+    // skip duplicates
+    if (seen.includes(task.taskId)) continue;
+    seen.push(task.taskId);
 
-    if (await ledger.has(task.taskId)) { report.alreadyPaid.push(task.taskId); continue; }
+    // already paid in an earlier run
+    if (ledger.has(task.taskId)) continue;
 
+    // pay (same key on every retry so it is never paid twice)
     let transfer;
     try {
-      transfer = await gateway.pay({
-        userId: task.userId,
-        taskId: task.taskId,
-        amount: CREDITS_PER_TASK,
-        idempotencyKey: payoutKey(task),
-      });
-    } catch (err) {
-      if (err instanceof PayoutDeclined) { report.payoutDeclined.push(task.taskId); continue; }
-      throw err;
+      transfer = gateway.pay(task.userId, task.taskId, CREDITS_PER_TASK, 'task:' + task.taskId);
+    } catch (error) {
+      if (error instanceof PayoutDeclined) continue;
+      throw error;
     }
 
-    await ledger.record(task.taskId, {
-      userId: task.userId,
-      amount: CREDITS_PER_TASK,
-      windowId: window.id,
-      transferId: transfer.transferId,
-      notification: 'pending',
-    });
-    report.paid.push(task.taskId);
+    // save in ledger
+    ledger.save(task.taskId, { userId: task.userId, transferId: transfer.id, notification: 'pending' });
+    paid.push(task.taskId);
 
+    // notify user (payment stays even if this fails)
     try {
-      await notifier.send(task.userId, { taskId: task.taskId, amount: CREDITS_PER_TASK, windowId: window.id });
-      await ledger.setNotification(task.taskId, 'sent');
+      notifier.send(task.userId, task.taskId);
+      ledger.get(task.taskId).notification = 'sent';
     } catch {
-      report.notificationFailed.push(task.taskId);
+      notifyFailed.push(task.taskId);
     }
   }
 
-  return report;
+  return { windowId: window.id, paid, notifyFailed };
 }

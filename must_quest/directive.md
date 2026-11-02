@@ -18,7 +18,7 @@ Prove with a runnable local fixture that a weekly rewards settlement pays each t
 **Out of scope (non goals)**
 
 * Any live MUST product, live financial system or real blockchain transaction.
-* Concurrency between workers, a notification resend job, wallet changes and admin changes mid week. These are recorded as gaps G1 to G6.
+* Concurrency between workers, a notification resend job, wallet changes and admin changes mid week. These are recorded as gaps G1 to G7.
 
 All data in this project is synthetic. User names such as alice and bilal are fictional.
 
@@ -32,7 +32,7 @@ All data in this project is synthetic. User names such as alice and bilal are fi
    * duplicate input
    * a retry
    * a partial failure
-3. One command per implementation. Each one saves its output to `results/`.
+3. One command per implementation, with the output of both runs saved in `results/`.
 4. Assertions check money that actually moved (gateway transfers), not only the job report.
 5. One defect report with:
    * reproduction steps
@@ -95,9 +95,9 @@ You need Node 20 or later. Run `npm install` once before the tests. To watch the
 
 The failure messages match the defect:
 
-* TC10: 40 credits paid instead of 20.
-* TC11: T1 has 2 transfers instead of 1.
-* TC12: after the lost response, the retry paid T1 and T2 again (2 transfers each instead of 1).
+* TC10: the rerun paid task_101 and task_102 again (expected nothing new).
+* TC11: task_101 has 2 transfers instead of 1.
+* TC12: after the lost response, the retry paid task_101 and task_102 again (2 transfers each instead of 1).
 * TC13: a task from an earlier week was paid again.
 
 These results come from running both commands locally on [Aisha: date, macOS, Node version].
@@ -122,12 +122,13 @@ These results come from running both commands locally on [Aisha: date, macOS, No
 **AI output that was corrected:**
 
 * In the first version (Node's built in test runner), the runner script pointed Node at a folder (`tests/`) and failed to start. It was corrected to point at the test file, then both modes were rerun.
-* The first defect notes said TC12 paid only T2 twice. The Playwright run showed that the retry pays T1 and T2 twice, so the documents were corrected.
+* The first defect notes said TC12 paid only task_102 twice. The Playwright run showed that the retry pays task_101 and task_102 twice, so the documents were corrected.
 * A [Aisha: add anything you changed or rejected. For example, a test you rewrote, a severity you changed, or wording you corrected.]
 
 **What I decided and verified myself.**
 
 * I asked for the suite to be moved from Node's built in test runner to Playwright Test, so it matches the automation stack I use and the runs can be watched in UI mode.
+* I asked for the code to be simplified (shorter test names, one step per line, no unused code, a plain `beforeEach` setup) so it reads like the tests I normally write and is easier to explain.
 
 [Aisha: add the rest honestly in your own words. For example:]
 
@@ -143,7 +144,7 @@ These results come from running both commands locally on [Aisha: date, macOS, No
 * This is a fixture with fakes, not a real payout system. No real gateway, database or blockchain was tested.
 * Only one deep failure was chosen. Boundary, time zone and notification behaviour are covered by tests but were not investigated in depth.
 * The likelihood scores in `intent.md` are my judgment, not measured incident data.
-* Gaps G1 to G6 in the checklist remain open.
+* Gaps G1 to G7 in the checklist remain open.
 
 ### G. Actual effort
 

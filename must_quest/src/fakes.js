@@ -1,71 +1,103 @@
-export class PayoutDeclined extends Error {
-  constructor(message) { super(message); this.name = 'PayoutDeclined'; }
-}
-export class GatewayCrash extends Error {
-  constructor(message) { super(message); this.name = 'GatewayCrash'; }
-}
-export class GatewayTimeout extends Error {
-  constructor(message) { super(message); this.name = 'GatewayTimeout'; }
-}
+// fake ledger, gateway and notifier (no real payments)
 
+export class PayoutDeclined extends Error {}
+export class GatewayCrash extends Error {}
+export class GatewayTimeout extends Error {}
+
+// fake ledger - keeps paid tasks
 export class FakeLedger {
-  constructor(initial = []) {
-    this.entries = new Map(initial.map((e) => [e.taskId, { ...e }]));
+  constructor() {
+    this.entries = {};
   }
-  async has(taskId) { return this.entries.has(taskId); }
-  async record(taskId, entry) { this.entries.set(taskId, { taskId, ...entry }); }
-  async setNotification(taskId, status) {
-    const e = this.entries.get(taskId);
-    if (e) e.notification = status;
+
+  has(taskId) {
+    return this.entries[taskId] !== undefined;
   }
-  get(taskId) { return this.entries.get(taskId); }
+
+  save(taskId, entry) {
+    this.entries[taskId] = entry;
+  }
+
+  get(taskId) {
+    return this.entries[taskId];
+  }
 }
 
-export class FakePayoutGateway {
-  constructor({ crashOnCall, timeoutAfterCommitOnCall, declineUsers = [] } = {}) {
-    this.calls = 0;
+// fake payment gateway
+export class FakeGateway {
+  constructor() {
     this.transfers = [];
-    this.reversals = [];
-    this.byKey = new Map();
-    this.crashOnCall = crashOnCall;
-    this.timeoutAfterCommitOnCall = timeoutAfterCommitOnCall;
-    this.declineUsers = new Set(declineUsers);
+    this.calls = 0;
+    this.crashOnCall = 0;
+    this.timeoutOnCall = 0;
+    this.declinedUser = '';
   }
 
-  recover() { this.crashOnCall = undefined; this.timeoutAfterCommitOnCall = undefined; }
+  // if same key is used again, return the old payment (no new money)
+  pay(userId, taskId, amount, key) {
+    this.calls = this.calls + 1;
 
-  async pay({ userId, taskId, amount, idempotencyKey }) {
-    this.calls += 1;
-    if (this.crashOnCall === this.calls) throw new GatewayCrash(`Gateway unavailable on call ${this.calls}`);
-    if (this.declineUsers.has(userId)) throw new PayoutDeclined(`Payout declined for ${userId}`);
+    if (this.calls === this.crashOnCall) {
+      throw new GatewayCrash('gateway down');
+    }
+    if (userId === this.declinedUser) {
+      throw new PayoutDeclined('payout declined');
+    }
 
-    if (this.byKey.has(idempotencyKey)) return this.byKey.get(idempotencyKey);
+    for (const transfer of this.transfers) {
+      if (transfer.key === key) {
+        return transfer;
+      }
+    }
 
-    const transfer = { transferId: `tr_${this.transfers.length + 1}`, userId, taskId, amount, idempotencyKey };
+    const transfer = { id: this.transfers.length + 1, userId, taskId, amount, key };
     this.transfers.push(transfer);
-    this.byKey.set(idempotencyKey, transfer);
 
-    if (this.timeoutAfterCommitOnCall === this.calls) {
-      throw new GatewayTimeout(`Response lost after commit on call ${this.calls}`);
+    if (this.calls === this.timeoutOnCall) {
+      throw new GatewayTimeout('response lost after payment');
     }
     return transfer;
   }
 
-  async reverse(transferId) { this.reversals.push(transferId); }
+  // number of payments for a task
+  countFor(taskId) {
+    let count = 0;
+    for (const transfer of this.transfers) {
+      if (transfer.taskId === taskId) count++;
+    }
+    return count;
+  }
 
-  transfersForTask(taskId) { return this.transfers.filter((t) => t.taskId === taskId); }
-  totalFor(userId) { return this.transfers.filter((t) => t.userId === userId).reduce((s, t) => s + t.amount, 0); }
-  total() { return this.transfers.reduce((s, t) => s + t.amount, 0); }
+  // total credits paid
+  totalPaid() {
+    let total = 0;
+    for (const transfer of this.transfers) {
+      total = total + transfer.amount;
+    }
+    return total;
+  }
+
+  // total credits paid to a user
+  totalPaidTo(userId) {
+    let total = 0;
+    for (const transfer of this.transfers) {
+      if (transfer.userId === userId) total = total + transfer.amount;
+    }
+    return total;
+  }
 }
 
+// fake notifier
 export class FakeNotifier {
-  constructor({ failUsers = [] } = {}) {
+  constructor() {
     this.sent = [];
-    this.failUsers = new Set(failUsers);
+    this.failingUser = '';
   }
-  async send(userId, message) {
-    if (this.failUsers.has(userId)) throw new Error(`Push provider rejected message for ${userId}`);
-    this.sent.push({ userId, ...message });
+
+  send(userId, taskId) {
+    if (userId === this.failingUser) {
+      throw new Error('push failed');
+    }
+    this.sent.push({ userId, taskId });
   }
-  sentTo(userId) { return this.sent.filter((m) => m.userId === userId); }
 }

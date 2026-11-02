@@ -6,8 +6,8 @@
   "private": true,
   "engines": { "node": ">=20" },
   "scripts": {
-    "test": "node scripts/run.mjs fixed",
-    "test:faulty": "node scripts/run.mjs faulty",
+    "test": "playwright test --project=fixed",
+    "test:faulty": "playwright test --project=faulty",
     "test:ui": "playwright test --ui",
     "report": "playwright show-report results/html_report"
   },

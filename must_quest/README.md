@@ -14,7 +14,7 @@ npm run test:ui       # watch both projects run in Playwright UI mode
 npm run report        # open the HTML report of the last run
 ```
 
-The console output is saved to `results/fixed_run.txt` and `results/faulty_run.txt`.
+Saved runs are in `results/fixed_run.txt` and `results/faulty_run.txt`. Each run also writes an HTML report to `results/html_report`.
 
 UI mode opens a Playwright window. If Playwright asks for a browser the first time, run `npx playwright install chromium`.
 
@@ -34,8 +34,6 @@ src/settlement.js         corrected reference implementation
 src/settlement.faulty.js  faulty implementation, kept to reproduce DEF 001
 src/fakes.js              fake ledger, payout gateway and notifier
 tests/settlement.spec.js  regression suite (Playwright Test)
-tests/fixtures.js         picks the implementation per project; fresh fakes per test
 playwright.config.js      two projects: "fixed" and "faulty"
-scripts/run.mjs           runs one project and saves the console output
 results/                  saved runs and fix.diff
 ```

@@ -1,38 +1,32 @@
---- src/settlement.faulty.js	2026-10-31 23:51:21.063859977 +0500
-+++ src/settlement.js	2026-10-31 23:51:21.064265845 +0500
-@@ -1,12 +1,14 @@
+--- src/settlement.faulty.js	2026-11-01 04:01:57.214525405 +0500
++++ src/settlement.js	2026-11-01 04:01:57.213995351 +0500
+@@ -1,11 +1,9 @@
 -import { randomUUID } from 'node:crypto';
- import { CREDITS_PER_TASK, settlementWindow, isInWindow, hasExplicitOffset } from './window.js';
+ import { CREDITS_PER_TASK, getSettlementWindow, isInWindow, hasTimezone } from './window.js';
  import { PayoutDeclined } from './fakes.js';
  
--export const IMPLEMENTATION = 'faulty';
-+export const IMPLEMENTATION = 'fixed';
-+
-+export function payoutKey(task) {
-+  return `task:${task.taskId}`;
-+}
- 
- export async function runSettlement({ runAt, tasks, ledger, gateway, notifier }) {
-   const window = settlementWindow(runAt);
+-// weekly settlement - faulty version (DEF 001)
++// weekly settlement - fixed version
+ export function runSettlement({ runAt, tasks, ledger, gateway, notifier }) {
+   const window = getSettlementWindow(runAt);
 -  const runId = randomUUID(); // BUG: new value on every retry
-   const report = {
-     windowId: window.id,
-     paid: [],
-@@ -31,7 +33,7 @@
-     if (seenThisRun.has(task.taskId)) { report.duplicatesInInput.push(task.taskId); continue; }
-     seenThisRun.add(task.taskId);
+   const paid = [];
+   const notifyFailed = [];
+   const seen = [];
+@@ -20,12 +18,13 @@
+     if (seen.includes(task.taskId)) continue;
+     seen.push(task.taskId);
  
--    // BUG: no ledger.has(task.taskId) check here.
-+    if (await ledger.has(task.taskId)) { report.alreadyPaid.push(task.taskId); continue; }
+-    // BUG: ledger is not checked before paying
++    // already paid in an earlier run
++    if (ledger.has(task.taskId)) continue;
  
+-    // pay
++    // pay (same key on every retry so it is never paid twice)
      let transfer;
      try {
-@@ -39,7 +41,7 @@
-         userId: task.userId,
-         taskId: task.taskId,
-         amount: CREDITS_PER_TASK,
--        idempotencyKey: `${runId}:${task.taskId}`, // BUG: run scoped, not task scoped
-+        idempotencyKey: payoutKey(task),
-       });
-     } catch (err) {
-       if (err instanceof PayoutDeclined) { report.payoutDeclined.push(task.taskId); continue; }
+-      transfer = gateway.pay(task.userId, task.taskId, CREDITS_PER_TASK, runId + ':' + task.taskId); // BUG: key changes on every retry
++      transfer = gateway.pay(task.userId, task.taskId, CREDITS_PER_TASK, 'task:' + task.taskId);
+     } catch (error) {
+       if (error instanceof PayoutDeclined) continue;
+       throw error;

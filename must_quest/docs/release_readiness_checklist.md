@@ -11,7 +11,7 @@ A change to settlement, payout, ledger or notification code is ready only when e
 | 5 | Payout calls use a task scoped idempotency key | Must, code review | Fail | Pass |
 | 6 | Ledger is checked before paying | Must, code review | Fail | Pass |
 | 7 | Staging reconciliation: gateway transfers equal ledger entries per window | Must, staging | Not run | Not run (no staging in this fixture) |
-| 8 | Run report lists rejected, declined and notification failed tasks for operations | Must | Pass | Pass |
+| 8 | Run report lists paid tasks and failed notifications for operations | Must | Pass | Pass |
 | 9 | Rollback plan: disable the job flag, no automatic reversals | Must | Documented | Documented |
 | 10 | Concurrency guard (one worker per window) | Should | Not covered (G1) | Not covered (G1) |
 | 11 | Pending notification resend job exists | Should | Not covered (G2) | Not covered (G2) |
@@ -26,6 +26,7 @@ A change to settlement, payout, ledger or notification code is ready only when e
 | G4 | Wallet or account change between completion and settlement | Payout to the wrong destination | Product decision needed, then test cases |
 | G5 | Admin changes credits per task mid week | Users in the same week paid differently | Snapshot the config at window start; add a test |
 | G6 | Declined payouts have no retry policy | Eligible users wait indefinitely | Define a retry limit and an operations alert |
+| G7 | Skipped tasks (no timezone, out of window, declined) are not listed in the run report | Operations cannot see why a task was not paid | Add a skipped list with a reason per task |
 
 ## Release decision
 
@@ -34,7 +35,7 @@ A change to settlement, payout, ledger or notification code is ready only when e
 
 ## Handoff
 
-* **Run:** `npm test` (fixed) and `npm run test:faulty` (reproduces DEF 001). Both write output to `results/`.
+* **Run:** `npm test` (fixed) and `npm run test:faulty` (reproduces DEF 001). Each run writes an HTML report to `results/html_report`.
 * **Where the logic lives:** window rules in `src/window.js`, settlement in `src/settlement.js`, test doubles in `src/fakes.js`.
 * **Adding a case:** add a `test(...)` block in `tests/settlement.spec.js`. Assert on `gateway.transfers`, not only the run report.
 * **Owner for G1 and G2:** backend engineer with QA review. Tests should come before the fix.
