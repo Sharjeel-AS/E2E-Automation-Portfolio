@@ -134,6 +134,7 @@ I reviewed the AI output the way I review any test suite before sign off, and ch
 * **Flakiness:** I checked that there are no fixed waits or sleeps, so the results do not depend on timing.
 * **Maintainability:** I asked for the code to be rewritten in a plain style (one step per line, no unused code, a simple `beforeEach`) so another QA engineer can extend it without help.
 * **Traceability:** I kept TC numbering so every automated test maps to a row in `docs/test_cases.md` and to the defect evidence, and replaced placeholder data with realistic task IDs.
+* **Verification:** I broke the fix on purpose by changing the payment key to a random value on every run, then ran `npm test`. TC12 (retry after a lost response) failed while the other 15 passed, which showed that the ledger check alone does not protect a payment whose response was lost; the stable key is what protects it. I then restored the fix and all 16 passed again.
 * **Understanding:** I asked for an explanation of every part I was not sure about, for example how one test file runs against both builds and how `countFor` detects a double payment, so I can explain and own the result.
 
 ### F. Limitations
