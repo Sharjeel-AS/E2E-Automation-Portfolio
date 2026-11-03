@@ -55,4 +55,4 @@ The faulty implementation passes the happy path, the boundary cases, the time zo
 
 * AI (Claude) drafted the failure list, the fixture and fakes, the first version of the test cases and the documents.
 * I reviewed the code and tests and asked for an explanation of every part I was not sure about, for example how one test file runs against both the fixed and the faulty code, and how `countFor` catches a double payment.
-* My decisions: moving the tests to Playwright Test, simplifying the code so it reads like the tests I write day to day, renaming the test data to realistic task IDs, and keeping standard TC numbering so the tests map to the test case table.
+* My decisions as the reviewer: moving the suite to Playwright Test, requiring at least two assertions per test, checking there are no fixed waits, rewriting the code in a plain style another QA engineer can extend, and keeping TC numbering for traceability to the test case table.

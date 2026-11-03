@@ -127,12 +127,14 @@ These results come from running both commands on 3 Nov 2026 with Node 22 and Pla
 
 **What I decided and verified myself.**
 
-* I asked for the suite to be moved from Node's built in test runner to Playwright Test, so it matches the automation stack I use and the runs can be watched in UI mode.
-* I asked for the code to be simplified (shorter test names, one step per line, no unused code, a plain `beforeEach` setup) so it reads like the tests I normally write and is easier to explain.
-* I asked for a comment on each function and for at least two assertions in every test.
-* I renamed the test data to realistic task IDs (`task_101` and so on) and kept standard TC numbering so each test maps to the table in `docs/test_cases.md`.
-* I reviewed the code and asked for explanations of the parts I was not sure about, such as how the faulty project loads the faulty file and how `countFor` detects a double payment.
-* I confirmed there are no fixed waits or sleeps in the suite, so it is not timing dependent.
+I reviewed the AI output the way I review any test suite before sign off, and changed what I would not accept:
+
+* **Tooling:** the first version used Node's built in test runner. I moved it to Playwright Test, which is the stack I use, so the suite can run in CI the same way and can be watched in UI mode.
+* **Assertion quality:** I required at least two assertions in every test, so each test checks both the money moved and the user facing result (paid list or notification). The suite now has 57 assertions.
+* **Flakiness:** I checked that there are no fixed waits or sleeps, so the results do not depend on timing.
+* **Maintainability:** I asked for the code to be rewritten in a plain style (one step per line, no unused code, a simple `beforeEach`) so another QA engineer can extend it without help.
+* **Traceability:** I kept TC numbering so every automated test maps to a row in `docs/test_cases.md` and to the defect evidence, and replaced placeholder data with realistic task IDs.
+* **Understanding:** I asked for an explanation of every part I was not sure about, for example how one test file runs against both builds and how `countFor` detects a double payment, so I can explain and own the result.
 
 ### F. Limitations
 
