@@ -100,7 +100,7 @@ The failure messages match the defect:
 * TC12: after the lost response, the retry paid task_101 and task_102 again (2 transfers each instead of 1).
 * TC13: a task from an earlier week was paid again.
 
-These results come from running both commands locally on [Aisha: date, macOS, Node version].
+These results come from running both commands on 3 Nov 2026 with Node 22 and Playwright Test 1.63.0, on a fresh clone of the repository.
 
 ### D. Release decision
 
@@ -123,21 +123,16 @@ These results come from running both commands locally on [Aisha: date, macOS, No
 
 * In the first version (Node's built in test runner), the runner script pointed Node at a folder (`tests/`) and failed to start. It was corrected to point at the test file, then both modes were rerun.
 * The first defect notes said TC12 paid only task_102 twice. The Playwright run showed that the retry pays task_101 and task_102 twice, so the documents were corrected.
-* A [Aisha: add anything you changed or rejected. For example, a test you rewrote, a severity you changed, or wording you corrected.]
+* TC08 changes the server time zone during the test. The first draft restored it incorrectly when no time zone was set; this was fixed before the final run.
 
 **What I decided and verified myself.**
 
 * I asked for the suite to be moved from Node's built in test runner to Playwright Test, so it matches the automation stack I use and the runs can be watched in UI mode.
 * I asked for the code to be simplified (shorter test names, one step per line, no unused code, a plain `beforeEach` setup) so it reads like the tests I normally write and is easier to explain.
-
-[Aisha: add the rest honestly in your own words. For example:]
-
-* the choice of failure and its ranking
-* the assumption that timestamps without an offset are rejected
-* the release decision
-* reading the diff line by line
-* running both modes myself
-* temporarily reverting the fix to watch TC11 fail
+* I asked for a comment on each function and for at least two assertions in every test.
+* I renamed the test data to realistic task IDs (`task_101` and so on) and kept standard TC numbering so each test maps to the table in `docs/test_cases.md`.
+* I reviewed the code and asked for explanations of the parts I was not sure about, such as how the faulty project loads the faulty file and how `countFor` detects a double payment.
+* I confirmed there are no fixed waits or sleeps in the suite, so it is not timing dependent.
 
 ### F. Limitations
 
@@ -148,4 +143,4 @@ These results come from running both commands locally on [Aisha: date, macOS, No
 
 ### G. Actual effort
 
-[Aisha: total hours, for example "about 7 hours including review, documentation and Loom"]
+About 8 hours across 30 Oct to 3 Nov 2026 (estimate), including review sessions, code changes, documentation and the two Loom recordings.

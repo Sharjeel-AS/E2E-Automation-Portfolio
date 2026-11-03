@@ -53,6 +53,6 @@ The faulty implementation passes the happy path, the boundary cases, the time zo
 
 ## How AI was used and what I verified
 
-* AI helped draft: the failure list, the fixture and fakes, the first version of the test cases, and the document structure.
-* I verified myself: [Aisha: fill this in honestly. For example: read every test and the diff line by line, ran both modes locally on node X, changed the idempotency key back to the run scoped version and confirmed TC11 and TC12 fail, checked the boundary dates by hand, and edited the severity reasoning.]
-* Judgment calls that were mine: [Aisha: e.g. which failure to choose, rejecting timestamps without an offset, the release decision.]
+* AI (Claude) drafted the failure list, the fixture and fakes, the first version of the test cases and the documents.
+* I reviewed the code and tests and asked for an explanation of every part I was not sure about, for example how one test file runs against both the fixed and the faulty code, and how `countFor` catches a double payment.
+* My decisions: moving the tests to Playwright Test, simplifying the code so it reads like the tests I write day to day, renaming the test data to realistic task IDs, and keeping standard TC numbering so the tests map to the test case table.
