@@ -53,6 +53,18 @@ The faulty implementation passes the happy path, the boundary cases, the time zo
 
 ## How AI was used and what I verified
 
-* AI (Claude) drafted the failure list, the fixture and fakes, the first version of the test cases and the documents.
-* I reviewed the code and tests and asked for an explanation of every part I was not sure about, for example how one test file runs against both the fixed and the faulty code, and how `countFor` catches a double payment.
-* My decisions as the reviewer: moving the suite to Playwright Test, requiring at least two assertions per test, checking there are no fixed waits, rewriting the code in a plain style another QA engineer can extend, and keeping TC numbering for traceability to the test case table.
+**What AI did:** Claude drafted the failure list, the fixture and fakes, the first version of the 16 test cases and the first drafts of the documents.
+
+**What I verified myself:**
+
+* I ran both builds on my Mac in VS Code: the faulty build fails TC10 to TC13, and the fixed build passes all 16.
+* I broke the fix on purpose by making the payment key random, then ran the tests again. TC12 failed and TC11 still passed. This showed that both parts of the fix are needed: the ledger check covers a crash, and the stable key covers a payment whose response was lost. I then restored the fix and all 16 passed.
+* I reviewed the code and tests, and asked for an explanation of every part I was not sure about, for example how one test file runs against both builds and how `countFor` catches a double payment.
+
+**What I decided as the reviewer:**
+
+* moved the suite to Playwright Test, the stack I use
+* required at least two assertions in every test
+* checked there are no fixed waits, so the tests are not timing dependent
+* had the code rewritten in a plain style another QA engineer can extend
+* kept TC numbering so each test maps to the test case table and the defect evidence
