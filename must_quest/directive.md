@@ -64,7 +64,7 @@ All data in this project is synthetic. User names such as alice and bilal are fi
 |---|---|
 | Repository (runnable test project) | [https://github.com/Sharjeel-AS/E2E-Automation-Portfolio/tree/main/must_quest](https://github.com/Sharjeel-AS/E2E-Automation-Portfolio/tree/main/must_quest) |
 | Quest Loom | [https://www.loom.com/share/1e16088a63b94cab90fffeffb2a6ff7c](https://www.loom.com/share/1e16088a63b94cab90fffeffb2a6ff7c) |
-| Career Path and Career Leverage video | [Aisha: Loom or Drive link] |
+| Career Path and Career Leverage video | [https://www.loom.com/share/38bee236fe824b7290fe240ae7cd6d78](https://www.loom.com/share/38bee236fe824b7290fe240ae7cd6d78) |
 | Intent and prioritisation | [intent.md](intent.md) |
 | Flow map, assumptions and 16 test cases with results | [docs/test_cases.md](docs/test_cases.md) |
 | Defect and root cause report (DEF 001) | [docs/defect_report.md](docs/defect_report.md) |
